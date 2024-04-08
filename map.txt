@@ -1,0 +1,36 @@
+ , , , , , , , , , , , , , , , , , , , , , , , , , , , 
+ , , , , , , , , , , , , , , , , , , , , , , , , , , , 
+ , , , , , , , , , , , , , , , , , , , , , , , , , , , 
+B,F,F,F,F,F,F,F,F,F,F,F,F,A,B,F,F,F,F,F,F,F,F,F,F,F,F,A
+E,G,G,G,G,G,G,G,G,G,G,G,G,E,E,G,G,G,G,G,G,G,G,G,G,G,G,E
+E,G,B,F,F,A,G,B,F,F,F,A,G,E,E,G,B,F,F,F,A,G,B,F,F,A,G,E
+E,H,E, , ,E,G,E, , , ,E,G,E,E,G,E, , , ,E,G,E, , ,E,H,E
+E,G,C,F,F,D,G,C,F,F,F,D,G,C,D,G,C,F,F,F,D,G,C,F,F,D,G,E
+E,G,G,G,G,G,G,G,G,G,G,G,G,G,G,G,G,G,G,G,G,G,G,G,G,G,G,E
+E,G,B,F,F,A,G,B,A,G,B,F,F,F,F,F,F,A,G,B,A,G,B,F,F,A,G,E
+E,G,C,F,F,D,G,E,E,G,C,F,F,A,B,F,F,D,G,E,E,G,C,F,F,D,G,E
+E,G,G,G,G,G,G,E,E,G,G,G,G,E,E,G,G,G,G,E,E,G,G,G,G,G,G,E
+C,F,F,F,F,A,G,E,C,F,F,A, ,E,E, ,B,F,F,D,E,G,B,F,F,F,F,D
+ , , , , ,E,G,E,B,F,F,D, ,C,D, ,C,F,F,A,E,G,E, , , , , 
+ , , , , ,E,G,E,E, , , , , , , , , , ,E,E,G,E, , , , , 
+ , , , , ,E,G,E,E, ,B,F,F,I,I,F,F,A, ,E,E,G,E, , , , , 
+F,F,F,F,F,D,G,C,D, ,E, , , , , , ,E, ,C,D,G,C,F,F,F,F,F
+ , , , , , ,G, , , ,E, , , , , , ,E, , , ,G, , , , , , 
+F,F,F,F,F,A,G,B,A, ,E, , , , , , ,E, ,B,A,G,B,F,F,F,F,F
+ , , , , ,E,G,E,E, ,C,F,F,F,F,F,F,D, ,E,E,G,E, , , , , 
+ , , , , ,E,G,E,E, , , , , , , , , , ,E,E,G,E, , , , , 
+ , , , , ,E,G,E,E, ,B,F,F,F,F,F,F,A, ,E,E,G,E, , , , , 
+B,F,F,F,F,D,G,C,D, ,C,F,F,A,B,F,F,D, ,C,D,G,C,F,F,F,F,A
+E,G,G,G,G,G,G,G,G,G,G,G,G,E,E,G,G,G,G,G,G,G,G,G,G,G,G,E
+E,G,B,F,F,A,G,B,F,F,F,A,G,E,E,G,B,F,F,F,A,G,B,F,F,A,G,E
+E,G,C,F,A,E,G,C,F,F,F,D,G,C,D,G,C,F,F,F,D,G,E,B,F,D,G,E
+E,H,G,G,E,E,G,G,G,G,G,G,G,G,G,G,G,G,G,G,G,G,E,E,G,G,H,E
+C,F,A,G,E,E,G,B,A,G,B,F,F,F,F,F,F,A,G,B,A,G,E,E,G,B,F,D
+B,F,D,G,C,D,G,E,E,G,C,F,F,A,B,F,F,D,G,E,E,G,C,D,G,C,F,A
+E,G,G,G,G,G,G,E,E,G,G,G,G,E,E,G,G,G,G,E,E,G,G,G,G,G,G,E
+E,G,B,F,F,F,F,D,C,F,F,A,G,E,E,G,B,F,F,D,C,F,F,F,F,A,G,E
+E,G,C,F,F,F,F,F,F,F,F,D,G,C,D,G,C,F,F,F,F,F,F,F,F,D,G,E
+E,G,G,G,G,G,G,G,G,G,G,G,G,G,G,G,G,G,G,G,G,G,G,G,G,G,G,E
+C,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,D
+ , , , , , , , , , , , , , , , , , , , , , , , , , , , 
+ , , , , , , , , , , , , , , , , , , , , , , , , , , , 
