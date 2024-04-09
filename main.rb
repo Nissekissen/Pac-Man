@@ -133,7 +133,7 @@ end
 
 
 while true
-    print "\e[2J\e[f"
+    system 'cls'
     board.draw_board
 
     board.pacman.move
