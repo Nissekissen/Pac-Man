@@ -1,4 +1,5 @@
 $frame = 0
+$frame_rate = 5.0
 
 require 'io/console'
 require './ghosts.rb'
@@ -171,7 +172,7 @@ while true
     board.pacman.move
     board.ghost.move board
 
-    sleep(1 / 5.0)
+    sleep(1 / $frame_rate)
 
     $frame += 1
 end
