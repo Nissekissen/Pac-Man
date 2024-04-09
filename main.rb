@@ -1,4 +1,5 @@
 require 'io/console'
+require './ghosts.rb'
 
 class PacMan
 
@@ -67,7 +68,7 @@ end
 
 class Board
 
-    attr_accessor :board, :pacman
+    attr_accessor :board, :pacman, :ghost
 
     def initialize
 
@@ -85,6 +86,7 @@ class Board
         end
 
         @pacman = PacMan.new 1, 4, "right"
+        @ghost = Ghost.new 4, 4
         
     end
 
@@ -94,6 +96,19 @@ class Board
 
     def []=(x, y, value)
         @board[y][x] = value
+    end
+
+    def is_wall? x, y
+        case @board[y][x].to_s
+        when "G"
+            return false
+        when " "
+            return false
+        when "H"
+            return false
+        else
+            return true
+        end
     end
 
     def draw_board
@@ -107,6 +122,7 @@ class Board
         end
 
         output_board[@pacman.y][@pacman.x] = @pacman.to_s
+        output_board[@ghost.y][@ghost.x] = @ghost.to_s
 
         result = ""
         output_board.each do |row|
@@ -137,6 +153,7 @@ while true
     board.draw_board
 
     board.pacman.move
+    board.ghost.move board
 
-    sleep(0.1)
+    sleep(1 / 5.0)
 end
