@@ -1,5 +1,8 @@
+$frame = 0
+
 require 'io/console'
 require './ghosts.rb'
+
 
 class PacMan
 
@@ -10,45 +13,46 @@ class PacMan
         @y = y
         @direction = direction
         @score = 0
+
+        @x_vel = 0
+        @y_vel = 0
     end
 
     def move
         case @direction
-        when "up"
-            @y -= 1
-        when "down"
-            @y += 1
-        when "left"
-            @x -= 1
-        when "right"
-            @x += 1
+        when 0
+            @x_vel = 1
+            @y_vel = 0
+        when 1
+            @y_vel = -1
+            @x_vel = 0
+        when 2 
+            @x_vel = -1
+            @y_vel = 0
+        when 3
+            @y_vel = 1
+            @x_vel = 0
         end
+
+        @x += @x_vel
+        @y += @y_vel
     end
 
     def key_press key
         case key
         when "w"
-            @direction = "up"
+            @direction = 1
         when "s"
-            @direction = "down"
+            @direction = 3
         when "a"
-            @direction = "left"
+            @direction = 2
         when "d"
-            @direction = "right"
+            @direction = 0
         end
     end
 
     def to_s
-        case @direction
-        when "up"
-            "1"
-        when "down"
-            "3"
-        when "left"
-            "2"
-        when "right"
-            "0"
-        end
+        @direction.to_s
     end
 end
 
@@ -85,8 +89,8 @@ class Board
             end
         end
 
-        @pacman = PacMan.new 1, 4, "right"
-        @ghost = Ghost.new 4, 4
+        @pacman = PacMan.new 1, 4, 0
+        @ghost = Blinky.new 4, 4
         
     end
 
@@ -124,6 +128,18 @@ class Board
         output_board[@pacman.y][@pacman.x] = @pacman.to_s
         output_board[@ghost.y][@ghost.x] = @ghost.to_s
 
+        output_board[0][1] = "P"
+        output_board[0][2] = "Q"
+        output_board[0][3] = "R"
+        output_board[0][4] = "S"
+        output_board[0][5] = "T"
+        output_board[0][6] = "U"
+        output_board[0][7] = "V"
+        output_board[0][8] = "W"
+        output_board[0][9] = "X"
+        output_board[0][10] = "Y"
+        output_board[1][11] = "O"
+
         result = ""
         output_board.each do |row|
             row.each do |cell|
@@ -156,4 +172,6 @@ while true
     board.ghost.move board
 
     sleep(1 / 5.0)
+
+    $frame += 1
 end

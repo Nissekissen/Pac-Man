@@ -12,6 +12,10 @@ class Ghost
 
         @target_x = 27
         @target_y = 35
+
+        @frame_offset = rand(4)
+
+        @mode = :scatter
     end
 
     def get_directions board
@@ -34,11 +38,17 @@ class Ghost
 
     def move board
 
+        if ($frame + @frame_offset) % 2 == 0
+            return
+        end
+
+        generate_target board
+
         # find all possible directions
         possible_directions = get_directions(board)
 
         opposite_direction = [-@vel_x, -@vel_y]
-        if possible_directions.include?(opposite_direction)
+        if possible_directions.include?(opposite_direction) && possible_directions.length > 1
             possible_directions.delete(opposite_direction)
         end
 
@@ -62,5 +72,33 @@ class Ghost
 
     def to_s
         "J"
+    end
+end
+
+class Blinky < Ghost
+
+    def generate_target board
+
+        if @mode == :scatter
+            @target_x = 25
+            @target_y = 0
+            return
+        end
+
+        @target_x = board.pacman.x
+        @target_y = board.pacman.y
+    end
+end
+
+class Pinky < Ghost
+
+    def generate_target board
+        if @mode == :scatter
+            @target_x = 0
+            @target_y = 0
+            return
+        end
+
+
     end
 end
