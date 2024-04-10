@@ -1,16 +1,28 @@
 $frame = 0
-$frame_rate = 5.0
+$frame_rate = 15.0
 
-require 'rainbow/refinement'
-using Rainbow
+$start_time = Time.now
+$current_time = Time.now - $start_time
 
 require 'io/console'
 require './ghosts.rb'
 
+# first is scatter, second is chase, third is scatter, fourth is chase, etc.
+$mode_timer = [7, 20, 7, 20, 7, 20, 5, 20]
+
+def get_mode
+    total = 0
+    $mode_timer.each_with_index do |time, i|
+        total += time
+        if $current_time < total
+            return i % 2 == 0 ? :scatter : :chase
+        end
+    end
+end
 
 class PacMan
 
-    attr_accessor :x, :y, :direction, :score
+    attr_accessor :x, :y, :direction, :score, :x_vel, :y_vel
 
     def initialize x, y, direction
         @x = x
@@ -23,6 +35,11 @@ class PacMan
     end
 
     def move
+
+        if $frame % 3 == 0
+            return
+        end
+
         case @direction
         when 0
             @x_vel = 1
@@ -76,7 +93,7 @@ end
 
 class Board
 
-    attr_accessor :board, :pacman, :ghost
+    attr_accessor :board, :pacman, :ghosts
 
     def initialize
 
@@ -94,7 +111,8 @@ class Board
         end
 
         @pacman = PacMan.new 1, 4, 0
-        @ghost = Blinky.new 4, 4
+
+        @ghosts = [Blinky.new(13, 14), Pinky.new(13, 16), Inky.new(14, 16), Clyde.new(12, 16)]
         
     end
 
@@ -130,7 +148,13 @@ class Board
         end
 
         output_board[@pacman.y][@pacman.x] = @pacman.to_s
-        output_board[@ghost.y][@ghost.x] = @ghost.to_s
+        for ghost in @ghosts
+            output_board[ghost.y][ghost.x] = ghost.to_s
+            # if ghost.target_x != nil && ghost.target_y != nil
+            #     output_board[ghost.target_y][ghost.target_x] = "o"
+            # end
+        end
+        
 
         output_board[0][1] = "P"
         output_board[0][2] = "Q"
@@ -173,9 +197,30 @@ while true
     board.draw_board
 
     board.pacman.move
-    board.ghost.move board
+    
+    if $current_time.to_i > 3 && board.ghosts[1].mode == :house
+        board.ghosts[1].mode = get_mode
+    end
+
+    if $current_time.to_i > 5 && board.ghosts[2].mode == :house
+        board.ghosts[2].mode = get_mode
+    end
+
+    if $current_time.to_i > 7 && board.ghosts[3].mode == :house
+        board.ghosts[3].mode = get_mode
+    end
+
+    board.ghosts.each_with_index do |ghost, i|
+        ghost.move board
+        if ghost.mode != :house
+            ghost.mode = get_mode
+        end
+    end
+    
 
     sleep(1 / $frame_rate)
 
     $frame += 1
+    $current_time = Time.now - $start_time
+
 end
