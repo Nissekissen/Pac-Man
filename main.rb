@@ -1,6 +1,9 @@
 $frame = 0
 $frame_rate = 5.0
 
+require 'rainbow/refinement'
+using Rainbow
+
 require 'io/console'
 require './ghosts.rb'
 
