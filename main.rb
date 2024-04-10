@@ -4,6 +4,9 @@ $frame_rate = 15.0
 $start_time = Time.now
 $current_time = Time.now - $start_time
 
+require 'rainbow/refinement'
+using Rainbow
+
 require 'io/console'
 require './ghosts.rb'
 
@@ -75,6 +78,10 @@ class PacMan
     def to_s
         @direction.to_s
     end
+
+    def draw
+        @direction.to_s.yellow
+    end
 end
 
 class Cell
@@ -88,6 +95,19 @@ class Cell
 
     def to_s
         @value
+    end
+
+    def draw
+        color = :white
+        case @value
+        when "A", "B", "C", "D", "E", "F"
+            color = :blue
+        when "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"
+            color = :yellow
+        else
+            color = :white
+        end
+        @value.color(color)
     end
 end
 
@@ -143,13 +163,13 @@ class Board
 
         @board.each do |row|
             row.each do |cell|
-                output_board[cell.y][cell.x] = cell.to_s
+                output_board[cell.y][cell.x] = cell.draw
             end
         end
 
-        output_board[@pacman.y][@pacman.x] = @pacman.to_s
+        output_board[@pacman.y][@pacman.x] = @pacman.draw
         for ghost in @ghosts
-            output_board[ghost.y][ghost.x] = ghost.to_s
+            output_board[ghost.y][ghost.x] = ghost.draw
             # if ghost.target_x != nil && ghost.target_y != nil
             #     output_board[ghost.target_y][ghost.target_x] = "o"
             # end

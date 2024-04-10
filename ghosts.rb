@@ -1,3 +1,5 @@
+require 'rainbow/refinement'
+using Rainbow
 
 class Ghost
 
@@ -129,6 +131,10 @@ class Blinky < Ghost
         @target_x = board.pacman.x
         @target_y = board.pacman.y
     end
+
+    def draw
+        "J".color(:red)
+    end
 end
 
 class Pinky < Ghost
@@ -147,6 +153,10 @@ class Pinky < Ghost
         if board.pacman.y_vel == -1
             @target_x -= 4
         end
+    end
+
+    def draw
+        "J".color(:pink)
     end
 end
 
@@ -172,6 +182,10 @@ class Inky < Ghost
             @target_y = 0
         end
     end
+
+    def draw
+        "J".color(:cyan)
+    end
 end
 
 class Clyde < Ghost
@@ -190,5 +204,9 @@ class Clyde < Ghost
             @target_x = board.pacman.x
             @target_y = board.pacman.y
         end
+    end
+
+    def draw
+        "J".color(:orange)
     end
 end
