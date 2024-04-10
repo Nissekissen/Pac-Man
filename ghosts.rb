@@ -15,7 +15,9 @@ class Ghost
 
         @frame_offset = rand(4)
 
-        @mode = :scatter
+        @mode = :house
+
+        @in_house = true
     end
 
     def get_directions board
@@ -25,6 +27,10 @@ class Ghost
             if board.is_wall?(@x + x_dir, @y + y_dir)
                 next
             end
+
+            # if @mode == :house || @in_house == true || board[@x + x_dir, @y + y_dir].to_s != "I"
+            #     next
+            # end
 
             output.push([x_dir, y_dir])
         end
@@ -41,6 +47,10 @@ class Ghost
         if ($frame + @frame_offset) % 2 == 0
             return
         end
+
+        # if @mode == :house
+        #     return
+        # end
 
         generate_target board
 
@@ -60,7 +70,6 @@ class Ghost
                 closest_direction = [x_dir, y_dir]
             end
         end
-
 
 
 
@@ -99,6 +108,12 @@ class Pinky < Ghost
             return
         end
 
+        @target_x = board.pacman.x + 4 * board.pacman.vel_x
+        @target_y = board.pacman.y + 4 * board.pacman.vel_y
 
+        # added the bug from the original game
+        if board.pacman.vel_y == -1
+            @target_x -= 4
+        end
     end
 end
