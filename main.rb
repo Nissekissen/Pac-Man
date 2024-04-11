@@ -80,7 +80,10 @@ class PacMan
     end
 
     def draw
-        @direction.to_s.yellow
+        if $frame % 2 == 0
+            return @direction.to_s.yellow
+        end
+        return "4".yellow
     end
 end
 
