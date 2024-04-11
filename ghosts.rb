@@ -156,7 +156,7 @@ class Pinky < Ghost
     end
 
     def draw
-        "J".color(:pink)
+        "J".color(:magenta)
     end
 end
 
