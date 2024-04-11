@@ -7,6 +7,10 @@ $current_time = Time.now - $start_time
 require 'rainbow/refinement'
 using Rainbow
 
+require 'tty-cursor'
+$cursor = TTY::Cursor
+$cursor.hide
+
 require 'io/console'
 require './ghosts.rb'
 
@@ -21,6 +25,23 @@ def get_mode
             return i % 2 == 0 ? :scatter : :chase
         end
     end
+end
+
+
+def find_differences arr1, arr2
+
+    differences = []
+
+    arr1.each_with_index do |row, y|
+        row.each_with_index do |cell, x|
+            if cell.to_s != arr2[y][x].to_s
+                differences.push([x, y])
+            end
+        end
+    end
+
+    return differences
+
 end
 
 class PacMan
@@ -142,6 +163,7 @@ class Board
     def initialize
 
         @board = Array.new(36) { Array.new(29) { Cell.new 0, 0, nil } }
+        @last_board = nil
 
         File.open("map.txt", "r") do |file|
             # read the file line by line and store the values in the board
@@ -185,47 +207,48 @@ class Board
 
         output_board = Array.new(36) { Array.new(28) { " " } }
 
+        
         @board.each do |row|
             row.each do |cell|
                 output_board[cell.y][cell.x] = cell.draw
             end
         end
-
+        
         output_board[@pacman.y][@pacman.x] = @pacman.draw
         for ghost in @ghosts
             output_board[ghost.y][ghost.x] = ghost.draw
-            # if ghost.target_x != nil && ghost.target_y != nil
-            #     output_board[ghost.target_y][ghost.target_x] = "o"
-            # end
         end
         
-
-        output_board[0][1] = "P"
-        output_board[0][2] = "Q"
-        output_board[0][3] = "R"
-        output_board[0][4] = "S"
-        output_board[0][5] = "T"
-        output_board[0][6] = "U"
-        output_board[0][7] = "V"
-        output_board[0][8] = "W"
-        output_board[0][9] = "X"
-        output_board[0][10] = "Y"
-        output_board[1][11] = "O"
-
-        result = ""
-        output_board.each do |row|
-            row.each do |cell|
-                result += cell.to_s + " "
+        if @last_board != nil
+            differences = find_differences @last_board, output_board
+            for x, y in differences
+                # move the cursor to the correct position
+                print $cursor.move_to(x * 2 + 1, y)
+                # print the new value
+                print output_board[y][x]
             end
-            result += "\n" 
+
+            @last_board = output_board.clone
+            return
         end
 
-        puts result
+        output_board.each_with_index do |row, y|
+            row.each_with_index do |cell, x|
+                print $cursor.move_to(x * 2 + 1, y)
+                print cell
+            end
+        end
+
+        @last_board = output_board.clone
 
     end
 end
 
 board = Board.new
+
+
+
+system "cls"
 
 key_thread = Thread.new do
     loop do
@@ -236,35 +259,36 @@ key_thread = Thread.new do
 end
 
 
-while true
-    system 'cls'
-    board.draw_board
+$cursor.invisible {
+    loop do
+        board.draw_board
 
-    board.pacman.move board
-    
-    if $current_time.to_i > 3 && board.ghosts[1].mode == :house
-        board.ghosts[1].mode = get_mode
-    end
-
-    if $current_time.to_i > 5 && board.ghosts[2].mode == :house
-        board.ghosts[2].mode = get_mode
-    end
-
-    if $current_time.to_i > 7 && board.ghosts[3].mode == :house
-        board.ghosts[3].mode = get_mode
-    end
-
-    board.ghosts.each_with_index do |ghost, i|
-        ghost.move board
-        if ghost.mode != :house
-            ghost.mode = get_mode
+        board.pacman.move board
+        
+        if $current_time.to_i > 3 && board.ghosts[1].mode == :house
+            board.ghosts[1].mode = get_mode
         end
+
+        if $current_time.to_i > 5 && board.ghosts[2].mode == :house
+            board.ghosts[2].mode = get_mode
+        end
+
+        if $current_time.to_i > 7 && board.ghosts[3].mode == :house
+            board.ghosts[3].mode = get_mode
+        end
+
+        board.ghosts.each_with_index do |ghost, i|
+            ghost.move board
+            if ghost.mode != :house
+                ghost.mode = get_mode
+            end
+        end
+        
+
+        sleep(1 / $frame_rate)
+
+        $frame += 1
+        $current_time = Time.now - $start_time
     end
-    
 
-    sleep(1 / $frame_rate)
-
-    $frame += 1
-    $current_time = Time.now - $start_time
-
-end
+}
