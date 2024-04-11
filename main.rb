@@ -36,42 +36,63 @@ class PacMan
         @x_vel = 0
         @y_vel = 0
     end
+    
+    def check_dir(dir)
+        case dir
+        when 0
+            return [1, 0]
+        when 1
+            return [0, -1]
+        when 2 
+            return [-1, 0]
+        when 3
+            return [0, 1]
+        end
+    end
 
-    def move
+    def check_rot(dir, board)
+        x, y = check_dir(dir)
+        return !board.is_wall?(@x + x, @y + y)
+    end
+
+    def move board
 
         if $frame % 3 == 0
             return
         end
 
-        case @direction
-        when 0
-            @x_vel = 1
-            @y_vel = 0
-        when 1
-            @y_vel = -1
-            @x_vel = 0
-        when 2 
-            @x_vel = -1
-            @y_vel = 0
-        when 3
-            @y_vel = 1
-            @x_vel = 0
-        end
+        @x_vel, @y_vel = check_dir(@direction)
 
-        @x += @x_vel
-        @y += @y_vel
+        if !board.is_wall? @x + @x_vel, @y + @y_vel
+            @x += @x_vel
+            @y += @y_vel
+        end
+        if @x == 28
+            @x = 0
+        elsif @x == -1
+            @x = 27
+        end
+    
     end
 
-    def key_press key
+    def key_press key, board
         case key
         when "w"
-            @direction = 1
+            if check_rot(1, board) == true
+                @direction = 1
+            end
         when "s"
-            @direction = 3
+            if check_rot(3, board) == true
+                @direction = 3
+            end
         when "a"
-            @direction = 2
+            if check_rot(2, board)
+                @direction = 2
+            end
         when "d"
-            @direction = 0
+            if check_rot(0, board)
+                @direction = 0
+            end
         end
     end
 
@@ -120,7 +141,7 @@ class Board
 
     def initialize
 
-        @board = Array.new(36) { Array.new(28) { Cell.new 0, 0, nil } }
+        @board = Array.new(36) { Array.new(29) { Cell.new 0, 0, nil } }
 
         File.open("map.txt", "r") do |file|
             # read the file line by line and store the values in the board
@@ -210,7 +231,7 @@ key_thread = Thread.new do
     loop do
         c = STDIN.getch
         # Do something with the keypress
-        board.pacman.key_press c
+        board.pacman.key_press c, board
     end
 end
 
@@ -219,7 +240,7 @@ while true
     system 'cls'
     board.draw_board
 
-    board.pacman.move
+    board.pacman.move board
     
     if $current_time.to_i > 3 && board.ghosts[1].mode == :house
         board.ghosts[1].mode = get_mode
