@@ -3,6 +3,7 @@ $frame_rate = 60.0
 
 $start_time = Time.now
 $current_time = Time.now - $start_time
+$running = true
 
 require 'rainbow/refinement'
 using Rainbow
@@ -13,9 +14,10 @@ $cursor.hide
 
 require 'io/console'
 require './ghosts.rb'
+require './animation.rb'
 
 # first is scatter, second is chase, third is scatter, fourth is chase, etc.
-$mode_timer = [7, 99999999999, 7, 20, 7, 20, 5, 20]
+$mode_timer = [7, 20, 7, 20, 7, 20, 5, 20]
 
 def get_mode
     total = 0
@@ -60,6 +62,16 @@ class PacMan
         @y_vel = 0
 
         @speed = 0.3
+        
+        @animation_handler = AnimationHandler.new([
+            Animation.new(:right, ["4", "0", "5", "0"], 2),
+            Animation.new(:up,    ["4", "1", "6", "1"], 2),
+            Animation.new(:left,  ["4", "2", "7", "2"], 2),
+            Animation.new(:down,  ["4", "3", "8", "3"], 2),
+            Animation.new(:death, ["4", "1", "6", "9", "G", ".", ","], 3)
+        ])
+
+        @animation_handler.start(:right, true)
     end
     
     def check_dir(dir)
@@ -105,20 +117,28 @@ class PacMan
         when "w"
             if check_rot(1, board) == true
                 @direction = 1
+                @animation_handler.start(:up, true)
             end
         when "s"
             if check_rot(3, board) == true
                 @direction = 3
+                @animation_handler.start(:down, true)
             end
         when "a"
             if check_rot(2, board)
                 @direction = 2
+                @animation_handler.start(:left, true)
+
             end
         when "d"
             if check_rot(0, board)
                 @direction = 0
+                @animation_handler.start(:right, true)
             end
+        when "q"
+            $running = false
         end
+        
     end
 
     def to_s
@@ -126,10 +146,7 @@ class PacMan
     end
 
     def draw
-        if $frame % 2 == 0
-            return @direction.to_s.yellow
-        end
-        return "4".yellow
+        @animation_handler.draw.yellow
     end
 
     def x
@@ -298,6 +315,10 @@ $cursor.invisible {
             board.ghosts[3].mode = get_mode
         end
 
+        if !$running
+            break
+        end
+
         board.ghosts.each_with_index do |ghost, i|
             ghost.move board
             if ghost.mode != :house
@@ -313,3 +334,5 @@ $cursor.invisible {
     end
 
 }
+
+system "cls"
