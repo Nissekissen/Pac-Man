@@ -3,12 +3,14 @@ using Rainbow
 
 class Ghost
 
-    attr_accessor :x, :y, :mode
+    attr_accessor :mode
     attr_reader :target_x, :target_y
 
     def initialize x, y
         @x = x
         @y = y
+
+        @last_turn = [0, 0]
 
         @vel_x = 0
         @vel_y = -1
@@ -21,6 +23,8 @@ class Ghost
         @mode = :house
 
         @in_house = true
+
+        @speed = 0.3
     end
 
     def get_directions board
@@ -31,12 +35,12 @@ class Ghost
                 next
             end
 
-            if @in_house && board[@x + x_dir, @y + y_dir].to_s == "I"
+            if @in_house && board[@x.floor + x_dir, @y.floor + y_dir].to_s == "I"
                 output.push([x_dir, y_dir])
             end
                 
 
-            if board.is_wall?(@x + x_dir, @y + y_dir)
+            if board.is_wall?(@x.floor + x_dir, @y.floor + y_dir)
                 next
             end
 
@@ -67,7 +71,7 @@ class Ghost
             return
         end
 
-        if board[@x, @y].to_s == "I"
+        if board[@x.floor, @y.floor].to_s == "I"
             @in_house = false
         end
 
@@ -77,6 +81,8 @@ class Ghost
             @target_x = 13
             @target_y = 14
         end
+
+        
 
         # find all possible directions
         possible_directions = get_directions(board)
@@ -89,8 +95,8 @@ class Ghost
         closest_distance = 1000000
         closest_direction = nil
         for x_dir, y_dir in possible_directions
-            if distance(@x + x_dir, @y + y_dir, @target_x, @target_y) < closest_distance
-                closest_distance = distance(@x + x_dir, @y + y_dir, @target_x, @target_y)
+            if distance(@x.floor + x_dir, @y.floor + y_dir, @target_x, @target_y) < closest_distance
+                closest_distance = distance(@x.floor + x_dir, @y.floor + y_dir, @target_x, @target_y)
                 closest_direction = [x_dir, y_dir]
             end
         end
@@ -99,16 +105,48 @@ class Ghost
             closest_direction = possible_directions.sample
         end
 
+        temp = [@vel_x, @vel_y]
 
-        @vel_x, @vel_y = closest_direction
+        # it can only turn if it is at the last_turn spot
+        if @last_turn != [@x.floor, @y.floor]
+            @vel_x, @vel_y = closest_direction
+        end
 
-        @x += @vel_x
-        @y += @vel_y
+        if temp != [@vel_x, @vel_y]
+            @last_turn = [@x.floor, @y.floor]
+        end
+
+        @x += @vel_x * @speed
+        @y += @vel_y * @speed
+
+        if @x.floor == 28
+            @x = 0.0
+        elsif @x.floor == -1
+            @x = 27.0
+        end
+
     end
 
     def to_s
         "J"
     end
+
+    def x
+        @x.floor
+    end
+
+    def x=(value)
+        @x = value
+    end
+
+    def y=(value)
+        @y = value
+    end
+
+    def y
+        @y.floor
+    end
+
 end
 
 class Blinky < Ghost
@@ -197,7 +235,7 @@ class Clyde < Ghost
             return
         end
 
-        if distance(@x, @y, board.pacman.x, board.pacman.y) < 8
+        if distance(@x.floor, @y.floor, board.pacman.x, board.pacman.y) < 8
             @target_x = 0
             @target_y = 35
         else
