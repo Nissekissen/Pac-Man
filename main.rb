@@ -1,5 +1,5 @@
 $frame = 0
-$frame_rate = 15.0
+$frame_rate = 60.0
 
 $start_time = Time.now
 $current_time = Time.now - $start_time
@@ -25,6 +25,8 @@ def get_mode
             return i % 2 == 0 ? :scatter : :chase
         end
     end
+
+    return :chase
 end
 
 
@@ -46,7 +48,7 @@ end
 
 class PacMan
 
-    attr_accessor :x, :y, :direction, :score, :x_vel, :y_vel
+    attr_accessor :direction, :score, :x_vel, :y_vel
 
     def initialize x, y, direction
         @x = x
@@ -56,6 +58,8 @@ class PacMan
 
         @x_vel = 0
         @y_vel = 0
+
+        @speed = 0.3
     end
     
     def check_dir(dir)
@@ -73,7 +77,7 @@ class PacMan
 
     def check_rot(dir, board)
         x, y = check_dir(dir)
-        return !board.is_wall?(@x + x, @y + y)
+        return !board.is_wall?(@x.floor + x, @y.floor + y)
     end
 
     def move board
@@ -84,14 +88,14 @@ class PacMan
 
         @x_vel, @y_vel = check_dir(@direction)
 
-        if !board.is_wall? @x + @x_vel, @y + @y_vel
-            @x += @x_vel
-            @y += @y_vel
+        if !board.is_wall? @x.floor + @x_vel, @y.floor + @y_vel
+            @x += @x_vel * @speed
+            @y += @y_vel * @speed
         end
-        if @x == 28
-            @x = 0
-        elsif @x == -1
-            @x = 27
+        if @x.floor == 28
+            @x = 0.0
+        elsif @x.floor == -1
+            @x = 27.0
         end
     
     end
@@ -126,6 +130,22 @@ class PacMan
             return @direction.to_s.yellow
         end
         return "4".yellow
+    end
+
+    def x
+        @x.floor
+    end
+
+    def x= x
+        @x = x
+    end
+
+    def y
+        @y.floor
+    end
+
+    def y= y
+        @y = y
     end
 end
 
@@ -217,6 +237,7 @@ class Board
         output_board[@pacman.y][@pacman.x] = @pacman.draw
         for ghost in @ghosts
             output_board[ghost.y][ghost.x] = ghost.draw
+            # output_board[ghost.target_y][ghost.target_x] = "T".color(:green)
         end
         
         if @last_board != nil

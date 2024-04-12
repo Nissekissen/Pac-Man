@@ -3,7 +3,7 @@ using Rainbow
 
 class Ghost
 
-    attr_accessor :x, :y, :mode
+    attr_accessor :mode
     attr_reader :target_x, :target_y
 
     def initialize x, y
@@ -21,6 +21,8 @@ class Ghost
         @mode = :house
 
         @in_house = true
+
+        @speed = 0.3
     end
 
     def get_directions board
@@ -31,12 +33,12 @@ class Ghost
                 next
             end
 
-            if @in_house && board[@x + x_dir, @y + y_dir].to_s == "I"
+            if @in_house && board[@x.floor + x_dir, @y.floor + y_dir].to_s == "I"
                 output.push([x_dir, y_dir])
             end
                 
 
-            if board.is_wall?(@x + x_dir, @y + y_dir)
+            if board.is_wall?(@x.floor + x_dir, @y.floor + y_dir)
                 next
             end
 
@@ -55,19 +57,11 @@ class Ghost
 
     def move board
 
-        if ($frame + @frame_offset) % 3 == 0
-            return
-        end
-
-        if @mode == :frightened && ($frame + @frame_offset) % 3 == 1
-            return
-        end 
-
         if @mode == :house
             return
         end
 
-        if board[@x, @y].to_s == "I"
+        if board[@x.floor, @y.floor].to_s == "I"
             @in_house = false
         end
 
@@ -81,34 +75,72 @@ class Ghost
         # find all possible directions
         possible_directions = get_directions(board)
 
+        
         opposite_direction = [-@vel_x, -@vel_y]
-        if possible_directions.include?(opposite_direction) && possible_directions.length > 1
-            possible_directions.delete(opposite_direction)
+        # if possible_directions.include?(opposite_direction) && possible_directions.length > 1
+        for x_dir, y_dir in possible_directions
+            if x_dir == opposite_direction[0] && y_dir == opposite_direction[1]
+                print $cursor.move_to(board.ghosts.index(self) * 2, 0)
+                print "!"
+                possible_directions.delete(opposite_direction)
+                break
+            end
+            print $cursor.move_to(board.ghosts.index(self) * 2, 0)
+                print " "
         end
 
+        
         closest_distance = 1000000
         closest_direction = nil
         for x_dir, y_dir in possible_directions
-            if distance(@x + x_dir, @y + y_dir, @target_x, @target_y) < closest_distance
-                closest_distance = distance(@x + x_dir, @y + y_dir, @target_x, @target_y)
+            if distance(@x.floor + x_dir, @y.floor + y_dir, @target_x, @target_y) < closest_distance
+                closest_distance = distance(@x.floor + x_dir, @y.floor + y_dir, @target_x, @target_y)
                 closest_direction = [x_dir, y_dir]
             end
         end
-
+        
         if @mode == :frightened
             closest_direction = possible_directions.sample
         end
-
-
+        
+        
         @vel_x, @vel_y = closest_direction
+        
+        print $cursor.move_to(70, 10 + board.ghosts.index(self) * 2)
+        puts "Current direction: [#{@vel_x}, #{@vel_y}]                             ".color(:green)
+        print $cursor.move_to(70, 11 + board.ghosts.index(self) * 2)
+        puts "Possible directions: #{possible_directions}                             ".color(:green)
 
-        @x += @vel_x
-        @y += @vel_y
+        @x += @vel_x * @speed
+        @y += @vel_y * @speed
+
+        if @x.floor == 28
+            @x = 0.0
+        elsif @x.floor == -1
+            @x = 27.0
+        end
     end
 
     def to_s
         "J"
     end
+
+    def x
+        @x.floor
+    end
+
+    def x=(value)
+        @x = value
+    end
+
+    def y=(value)
+        @y = value
+    end
+
+    def y
+        @y.floor
+    end
+
 end
 
 class Blinky < Ghost
@@ -197,7 +229,7 @@ class Clyde < Ghost
             return
         end
 
-        if distance(@x, @y, board.pacman.x, board.pacman.y) < 8
+        if distance(@x.floor, @y.floor, board.pacman.x, board.pacman.y) < 8
             @target_x = 0
             @target_y = 35
         else
