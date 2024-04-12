@@ -1,0 +1,18 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    rainbow (3.1.1)
+    tty-cursor (0.7.1)
+
+PLATFORMS
+  x64-mingw-ucrt
+
+DEPENDENCIES
+  rainbow
+  tty-cursor
+
+RUBY VERSION
+   ruby 3.2.2p53
+
+BUNDLED WITH
+   2.4.10
