@@ -13,6 +13,7 @@ $cursor.hide
 
 require 'io/console'
 require './ghosts.rb'
+require './score.rb'
 
 # first is scatter, second is chase, third is scatter, fourth is chase, etc.
 $mode_timer = [7, 20, 7, 20, 7, 20, 5, 20]
@@ -88,12 +89,14 @@ class PacMan
             @x += @x_vel
             @y += @y_vel
         end
+
         if @x == 28
             @x = 0
         elsif @x == -1
             @x = 27
         end
-    
+
+        eatCheck(@x, @y, board)
     end
 
     def key_press key, board
@@ -176,7 +179,7 @@ class Board
             end
         end
 
-        @pacman = PacMan.new 1, 4, 0
+        @pacman = PacMan.new 14,26, 0
 
         @ghosts = [Blinky.new(13, 14), Pinky.new(13, 16), Inky.new(14, 16), Clyde.new(12, 16)]
         
@@ -217,6 +220,10 @@ class Board
         output_board[@pacman.y][@pacman.x] = @pacman.draw
         for ghost in @ghosts
             output_board[ghost.y][ghost.x] = ghost.draw
+        end
+
+        for i in 0...$score.to_s.length
+            output_board[1][10 + i] = $score.to_s[i]
         end
         
         if @last_board != nil
