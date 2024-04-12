@@ -10,6 +10,8 @@ class Ghost
         @x = x
         @y = y
 
+        @last_turn = [0, 0]
+
         @vel_x = 0
         @vel_y = -1
 
@@ -57,6 +59,14 @@ class Ghost
 
     def move board
 
+        if ($frame + @frame_offset) % 3 == 0
+            return
+        end
+
+        if @mode == :frightened && ($frame + @frame_offset) % 3 == 1
+            return
+        end 
+
         if @mode == :house
             return
         end
@@ -72,24 +82,16 @@ class Ghost
             @target_y = 14
         end
 
+        
+
         # find all possible directions
         possible_directions = get_directions(board)
 
-        
         opposite_direction = [-@vel_x, -@vel_y]
-        # if possible_directions.include?(opposite_direction) && possible_directions.length > 1
-        for x_dir, y_dir in possible_directions
-            if x_dir == opposite_direction[0] && y_dir == opposite_direction[1]
-                print $cursor.move_to(board.ghosts.index(self) * 2, 0)
-                print "!"
-                possible_directions.delete(opposite_direction)
-                break
-            end
-            print $cursor.move_to(board.ghosts.index(self) * 2, 0)
-                print " "
+        if possible_directions.include?(opposite_direction) && possible_directions.length > 1
+            possible_directions.delete(opposite_direction)
         end
 
-        
         closest_distance = 1000000
         closest_direction = nil
         for x_dir, y_dir in possible_directions
@@ -98,18 +100,21 @@ class Ghost
                 closest_direction = [x_dir, y_dir]
             end
         end
-        
+
         if @mode == :frightened
             closest_direction = possible_directions.sample
         end
-        
-        
-        @vel_x, @vel_y = closest_direction
-        
-        print $cursor.move_to(70, 10 + board.ghosts.index(self) * 2)
-        puts "Current direction: [#{@vel_x}, #{@vel_y}]                             ".color(:green)
-        print $cursor.move_to(70, 11 + board.ghosts.index(self) * 2)
-        puts "Possible directions: #{possible_directions}                             ".color(:green)
+
+        temp = [@vel_x, @vel_y]
+
+        # it can only turn if it is at the last_turn spot
+        if @last_turn != [@x.floor, @y.floor]
+            @vel_x, @vel_y = closest_direction
+        end
+
+        if temp != [@vel_x, @vel_y]
+            @last_turn = [@x.floor, @y.floor]
+        end
 
         @x += @vel_x * @speed
         @y += @vel_y * @speed
@@ -119,6 +124,7 @@ class Ghost
         elsif @x.floor == -1
             @x = 27.0
         end
+
     end
 
     def to_s

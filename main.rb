@@ -15,7 +15,7 @@ require 'io/console'
 require './ghosts.rb'
 
 # first is scatter, second is chase, third is scatter, fourth is chase, etc.
-$mode_timer = [7, 20, 7, 20, 7, 20, 5, 20]
+$mode_timer = [7, 99999999999, 7, 20, 7, 20, 5, 20]
 
 def get_mode
     total = 0
