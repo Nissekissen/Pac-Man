@@ -15,6 +15,7 @@ $cursor.hide
 require 'io/console'
 require './ghosts.rb'
 require './animation.rb'
+require './score.rb'
 
 # first is scatter, second is chase, third is scatter, fourth is chase, etc.
 $mode_timer = [7, 20, 7, 20, 7, 20, 5, 20]
@@ -104,12 +105,14 @@ class PacMan
             @x += @x_vel * @speed
             @y += @y_vel * @speed
         end
+      
         if @x.floor == 28
             @x = 0.0
         elsif @x.floor == -1
             @x = 27.0
         end
-    
+
+        eatCheck(@x, @y, board)
     end
 
     def key_press key, board
@@ -215,7 +218,7 @@ class Board
             end
         end
 
-        @pacman = PacMan.new 1, 4, 0
+        @pacman = PacMan.new 14,26, 0
 
         @ghosts = [Blinky.new(13, 14), Pinky.new(13, 16), Inky.new(14, 16), Clyde.new(12, 16)]
         
@@ -258,6 +261,12 @@ class Board
             output_board[ghost.y][ghost.x] = ghost.draw
             # output_board[ghost.target_y][ghost.target_x] = "T".color(:green)
         end
+
+        convertScore
+        for i in 0...$scoreString.to_s.length
+            output_board[1][10 + i] = $scoreString.to_s[i]
+        end
+        print $cursor.move_to(70, 10) + $scoreString
         
         if @last_board != nil
             differences = find_differences @last_board, output_board
