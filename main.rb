@@ -222,9 +222,11 @@ class Board
             output_board[ghost.y][ghost.x] = ghost.draw
         end
 
-        for i in 0...$score.to_s.length
-            output_board[1][10 + i] = $score.to_s[i]
+        convertScore
+        for i in 0...$scoreString.to_s.length
+            output_board[1][10 + i] = $scoreString.to_s[i]
         end
+        print $cursor.move_to(70, 10) + $scoreString
         
         if @last_board != nil
             differences = find_differences @last_board, output_board

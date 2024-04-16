@@ -1,39 +1,41 @@
-$score = ""
-score = 0
+$scoreString = ""
+$score = 0
 
 def eatCheck(x, y, board)
     case board[x, y].to_s
     when "G"
-        score += 10
+        $score += 10
         board[x, y].value = " "
     when "H"
-        score += 50
+        $score += 50
         board[x, y].value = " "
+    else
+
     end
 end
 def convertScore
-    for i in 0...score.length
-        case score.to_s[i]
+    for i in 0...$score.to_s.length
+        case $score.to_s[i].to_i
         when 0
-            $score[i] = "Q"
+            $scoreString[i] = "Q"
         when 1
-            $score[i] = "R"
+            $scoreString[i] = "R"
         when 2
-            $score[i] = "S"
+            $scoreString[i] = "S"
         when 3
-            $score[i] = "T"
+            $scoreString[i] = "T"
         when 4
-            $score[i] = "U"
+            $scoreString[i] = "U"
         when 5
-            $score[i] = "V"
+            $scoreString[i] = "V"
         when 6
-            $score[i] = "W"
+            $scoreString[i] = "W"
         when 7
-            $score[i] = "X"
+            $scoreString[i] = "X"
         when 8
-            $score[i] = "Y"
+            $scoreString[i] = "Y"
         when 9
-            $score[i] = "Z"
+            $scoreString[i] = "Z"
         end
     end
 end
