@@ -64,11 +64,11 @@ class PacMan
         @speed = 0.3
         
         @animation_handler = AnimationHandler.new([
-            Animation.new(:right, ["4", "0", "5", "0"], 2),
-            Animation.new(:up,    ["4", "1", "6", "1"], 2),
-            Animation.new(:left,  ["4", "2", "7", "2"], 2),
-            Animation.new(:down,  ["4", "3", "8", "3"], 2),
-            Animation.new(:death, ["4", "1", "6", "9", "G", ".", ","], 3)
+            Animation.new(:right, ["4", "0", "5", "0"].map(&:yellow), 2),
+            Animation.new(:up,    ["4", "1", "6", "1"].map(&:yellow), 2),
+            Animation.new(:left,  ["4", "2", "7", "2"].map(&:yellow), 2),
+            Animation.new(:down,  ["4", "3", "8", "3"].map(&:yellow), 2),
+            Animation.new(:death, ["4", "4", "1", "6", "9", "G", ".", ",", ","].map(&:yellow), 4)
         ])
 
         @animation_handler.start(:right, true)
@@ -137,6 +137,8 @@ class PacMan
             end
         when "q"
             $running = false
+        when "r"
+            @animation_handler.start(:death, false)
         end
         
     end
@@ -146,7 +148,7 @@ class PacMan
     end
 
     def draw
-        @animation_handler.draw.yellow
+        @animation_handler.draw
     end
 
     def x
