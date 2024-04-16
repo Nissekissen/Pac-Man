@@ -1,8 +1,18 @@
 require 'io/console'
 
 
-width = 28
-height = 36
+width = ARGV[0].to_i
+height = ARGV[1].to_i
+
+output_format = ARGV[2]
+
+file_name = ARGV[3] || "map.txt"
+
+if width == 0 || height == 0
+    puts "Invalid arguments"
+    exit
+end
+
 
 map = Array.new(height) { Array.new(width, 0) }
 
@@ -50,13 +60,19 @@ while true
 
     if y >= height
         # Save map to file
-        File.open("map.txt", "w") do |file|
-            file.write "[" + map.map { |row| "[" + row.map { |cell| "\"#{cell}\"" }.join(",") + "]" }.join(",") + "]"
+        File.open(file_name, "w") do |file|
+            if output_format == "json"
+                # for json
+                file.write "[" + map.map { |row| "[" + row.map { |cell| "\"#{cell}\"" }.join(",") + "]" }.join(",") + "]"
+            else
+                # for lines and commas
+                file.write map.map { |row| row.join(",") }.join(", \n") + ", "
+            end
         end
 
         system 'cls'
         draw_map map
-        puts "Map saved to map.txt"
+        puts "Map saved to #{file_name}"
         break
     end
 end
