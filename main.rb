@@ -51,7 +51,7 @@ end
 
 class PacMan
 
-    attr_accessor :direction, :score, :x_vel, :y_vel
+    attr_accessor :direction, :score, :x_vel, :y_vel, :current_key
 
     def initialize x, y, direction
         @x = x
@@ -59,10 +59,14 @@ class PacMan
         @direction = direction
         @score = 0
 
+        @current_key = [nil, nil] # first is the key, second is the time pressed
+        @reset_time = 1
+        @last_key = nil
+
         @x_vel = 0
         @y_vel = 0
 
-        @speed = 0.3
+        @speed = 0.2
         
         @animation_handler = AnimationHandler.new([
             Animation.new(:right, ["4", "0", "5", "0"].map(&:yellow), 2),
@@ -95,8 +99,13 @@ class PacMan
 
     def move board
 
-        if $frame % 3 == 0
-            return
+        if @current_key[0] != nil
+            key_press @current_key[0], board
+            @last_key = @current_key[0]
+        end
+
+        if @current_key[1] != nil && Time.now - @current_key[1] > @reset_time
+            @current_key = [nil, nil]
         end
 
         @x_vel, @y_vel = check_dir(@direction)
@@ -118,12 +127,12 @@ class PacMan
     def key_press key, board
         case key
         when "w"
-            if check_rot(1, board) == true
+            if check_rot(1, board)
                 @direction = 1
                 @animation_handler.start(:up, true)
             end
         when "s"
-            if check_rot(3, board) == true
+            if check_rot(3, board)
                 @direction = 3
                 @animation_handler.start(:down, true)
             end
@@ -302,8 +311,12 @@ system "cls"
 key_thread = Thread.new do
     loop do
         c = STDIN.getch
+        press_time = Time.now
         # Do something with the keypress
-        board.pacman.key_press c, board
+
+        board.pacman.current_key = [c, press_time]
+
+        # board.pacman.key_press c, board
     end
 end
 

@@ -24,7 +24,7 @@ class Ghost
 
         @in_house = true
 
-        @speed = 0.3
+        @speed = 0.2
     end
 
     def get_directions board
@@ -58,10 +58,6 @@ class Ghost
     end
 
     def move board
-
-        if ($frame + @frame_offset) % 3 == 0
-            return
-        end
 
         if @mode == :frightened && ($frame + @frame_offset) % 3 == 1
             return

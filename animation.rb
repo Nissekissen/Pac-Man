@@ -11,6 +11,9 @@ class AnimationHandler
     end
 
     def start animation_name, repeat = false
+        if @current != nil && @animations[@current].name == animation_name
+            return
+        end
         @current = @animations.index { |animation| animation.name == animation_name }
         @animation_start = $frame
         @repeat = repeat
