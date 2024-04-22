@@ -73,7 +73,7 @@ class PacMan
             Animation.new(:up,    ["4", "1", "6", "1"].map(&:yellow), 2),
             Animation.new(:left,  ["4", "2", "7", "2"].map(&:yellow), 2),
             Animation.new(:down,  ["4", "3", "8", "3"].map(&:yellow), 2),
-            Animation.new(:death, ["4", "4", "1", "6", "9", "G", ".", ",", ","].map(&:yellow), 4)
+            Animation.new(:death, ["4", "4", "1", "6", "9", "G", ".", ",", ","].map(&:yellow), 1)
         ])
 
         @animation_handler.start(:right, true)
@@ -146,6 +146,15 @@ class PacMan
             if check_rot(0, board)
                 @direction = 0
                 @animation_handler.start(:right, true)
+            end
+        when "g"
+            # kill ghosts
+            for ghost in board.ghosts
+                if !([:chase, :scatter, :frightened].include?(ghost.mode))
+                    next
+                end
+
+                ghost.kill
             end
         when "q"
             $running = false
@@ -243,11 +252,7 @@ class Board
 
     def is_wall? x, y
         case @board[y][x].to_s
-        when "G"
-            return false
-        when " "
-            return false
-        when "H"
+        when "G", "H", " "
             return false
         else
             return true
@@ -345,7 +350,7 @@ $cursor.invisible {
 
         board.ghosts.each_with_index do |ghost, i|
             ghost.move board
-            if ghost.mode != :house
+            if ghost.mode != :house && ghost.mode != :frightened && ghost.mode != :eyes
                 ghost.mode = get_mode
             end
         end
