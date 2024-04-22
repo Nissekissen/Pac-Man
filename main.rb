@@ -51,7 +51,7 @@ end
 
 class PacMan
 
-    attr_accessor :direction, :score, :x_vel, :y_vel, :current_key
+    attr_accessor :direction, :score, :x_vel, :y_vel, :current_key, :power, :animation_handler
 
     def initialize x, y, direction
         @x = x
@@ -67,13 +67,15 @@ class PacMan
         @y_vel = 0
 
         @speed = 0.2
+
+        @power = false
         
         @animation_handler = AnimationHandler.new([
             Animation.new(:right, ["4", "0", "5", "0"].map(&:yellow), 2),
             Animation.new(:up,    ["4", "1", "6", "1"].map(&:yellow), 2),
             Animation.new(:left,  ["4", "2", "7", "2"].map(&:yellow), 2),
             Animation.new(:down,  ["4", "3", "8", "3"].map(&:yellow), 2),
-            Animation.new(:death, ["4", "4", "1", "6", "9", "G", ".", ",", ","].map(&:yellow), 4)
+            Animation.new(:death, ["4", "4", "1", "6", "9", "G", ".", ",", ","].map(&:yellow), 8)
         ])
 
         @animation_handler.start(:right, true)
@@ -178,6 +180,14 @@ class PacMan
     def y= y
         @y = y
     end
+
+    def real_x
+        @x
+    end
+
+    def real_y
+        @y
+    end
 end
 
 class Cell
@@ -254,7 +264,7 @@ class Board
         end
     end
 
-    def draw_board
+    def draw_board dead
 
         output_board = Array.new(36) { Array.new(28) { " " } }
 
@@ -266,16 +276,26 @@ class Board
         end
         
         output_board[@pacman.y][@pacman.x] = @pacman.draw
-        for ghost in @ghosts
-            output_board[ghost.y][ghost.x] = ghost.draw
-            # output_board[ghost.target_y][ghost.target_x] = "T".color(:green)
-        end
+        if dead == false
+            for ghost in @ghosts
 
+                output_board[ghost.y][ghost.x] = ghost.draw
+                # output_board[ghost.target_y][ghost.target_x] = "T".color(:green)
+            end
+        end
+        
+        if dead
+            str = "GAME  OVER"
+            for i in 0...str.length
+                output_board[20][9 + i] = str[i].red
+            end
+        end
+        
         convertScore
         for i in 0...$scoreString.to_s.length
             output_board[1][10 + i] = $scoreString.to_s[i]
         end
-        print $cursor.move_to(70, 10) + $scoreString
+        
         
         if @last_board != nil
             differences = find_differences @last_board, output_board
@@ -304,7 +324,18 @@ end
 
 board = Board.new
 
+def check_dead board
+    if board.pacman.power
+        return false
+    end
 
+    for ghost in board.ghosts
+        if ghost.check_collision_pacman(board) == true
+            return true
+        end
+    end
+    return false
+end
 
 system "cls"
 
@@ -323,7 +354,11 @@ end
 
 $cursor.invisible {
     loop do
-        board.draw_board
+        if check_dead board
+            break
+        end
+
+        board.draw_board false
 
         board.pacman.move board
         
@@ -356,6 +391,14 @@ $cursor.invisible {
         $frame += 1
         $current_time = Time.now - $start_time
     end
+    board.draw_board true
+    board.pacman.animation_handler.start :death, false
+    for i in 0...72
+        board.draw_board true
+        sleep(1 / $frame_rate)
+        $frame += 1
+    end
+    STDIN.getch
 
 }
 
