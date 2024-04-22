@@ -9,6 +9,14 @@ def eatCheck(x, y, board)
     when "H"
         $score += 50
         board[x, y].value = " "
+
+        # make ghosts frightened
+        for ghost in board.ghosts
+            if !([:chase, :scatter, :frightened].include?(ghost.mode))
+                next
+            end
+            ghost.frightened
+        end
     else
 
     end

@@ -149,6 +149,15 @@ class PacMan
                 @direction = 0
                 @animation_handler.start(:right, true)
             end
+        when "g"
+            # kill ghosts
+            for ghost in board.ghosts
+                if !([:chase, :scatter, :frightened].include?(ghost.mode))
+                    next
+                end
+
+                ghost.kill
+            end
         when "q"
             $running = false
         when "r"
@@ -253,11 +262,7 @@ class Board
 
     def is_wall? x, y
         case @board[y][x].to_s
-        when "G"
-            return false
-        when " "
-            return false
-        when "H"
+        when "G", "H", " "
             return false
         else
             return true
@@ -380,7 +385,7 @@ $cursor.invisible {
 
         board.ghosts.each_with_index do |ghost, i|
             ghost.move board
-            if ghost.mode != :house
+            if ghost.mode != :house && ghost.mode != :frightened && ghost.mode != :eyes
                 ghost.mode = get_mode
             end
         end
