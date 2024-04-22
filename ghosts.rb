@@ -143,6 +143,17 @@ class Ghost
         @y.floor
     end
 
+    def real_x
+        @x
+    end
+
+    def real_y
+        @y
+    end
+
+    def check_collision_pacman board
+        (@y - board.pacman.real_y).abs < 0.8 && (@x - board.pacman.real_x).abs < 0.8
+    end
 end
 
 class Blinky < Ghost
