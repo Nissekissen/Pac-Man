@@ -105,8 +105,17 @@ class Ghost
 
             @speed = 0.2
         end
-        
 
+        if check_collision_pacman(board) && @mode == :frightened
+            @mode = :eyes
+            @animation_handler.start :eyes, true
+
+            @speed = 0.5
+
+            $ghost_count += 1
+            $score += 200 * 2 ** $ghost_count
+        end
+        
         # find all possible directions
         possible_directions = get_directions(board)
 

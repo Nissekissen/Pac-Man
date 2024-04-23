@@ -1,5 +1,7 @@
 $scoreString = ""
 $score = 0
+$ghost_count = 0
+$highscore = 0
 
 def eatCheck(x, y, board)
     case board[x, y].to_s
@@ -9,6 +11,8 @@ def eatCheck(x, y, board)
     when "H"
         $score += 50
         board[x, y].value = " "
+
+        $ghost_count = 0
 
         # make ghosts frightened
         for ghost in board.ghosts
@@ -21,29 +25,32 @@ def eatCheck(x, y, board)
 
     end
 end
-def convertScore
-    for i in 0...$score.to_s.length
-        case $score.to_s[i].to_i
+def convertScore score
+    str = ""
+    for i in 0...score.to_s.length
+        case score.to_s[i].to_i
         when 0
-            $scoreString[i] = "Q"
+            str[i] = "Q"
         when 1
-            $scoreString[i] = "R"
+            str[i] = "R"
         when 2
-            $scoreString[i] = "S"
+            str[i] = "S"
         when 3
-            $scoreString[i] = "T"
+            str[i] = "T"
         when 4
-            $scoreString[i] = "U"
+            str[i] = "U"
         when 5
-            $scoreString[i] = "V"
+            str[i] = "V"
         when 6
-            $scoreString[i] = "W"
+            str[i] = "W"
         when 7
-            $scoreString[i] = "X"
+            str[i] = "X"
         when 8
-            $scoreString[i] = "Y"
+            str[i] = "Y"
         when 9
-            $scoreString[i] = "Z"
+            str[i] = "Z"
         end
     end
+
+    return str
 end

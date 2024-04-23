@@ -20,6 +20,28 @@ require './score.rb'
 # first is scatter, second is chase, third is scatter, fourth is chase, etc.
 $mode_timer = [7, 20, 7, 20, 7, 20, 5, 20]
 
+def save_highscore score
+    # check if highscore.txt exists
+    if !File.file?("highscore.txt")
+        # if it doesn't, create it
+        File.open("highscore.txt", "w") do |file|
+            file.puts "0"
+        end
+    end
+
+    # read the highscore from the file
+    highscore = File.read("highscore.txt").to_i
+
+    # if the current score is higher than the highscore, update the highscore
+    if score > highscore
+        File.open("highscore.txt", "w") do |file|
+            file.puts score
+        end
+    end
+
+    return [highscore, score].max
+end
+
 def get_mode
     total = 0
     $mode_timer.each_with_index do |time, i|
@@ -51,7 +73,7 @@ end
 
 class PacMan
 
-    attr_accessor :direction, :score, :x_vel, :y_vel, :current_key, :power, :animation_handler
+    attr_accessor :direction, :score, :x_vel, :y_vel, :current_key, :animation_handler
 
     def initialize x, y, direction
         @x = x
@@ -67,15 +89,13 @@ class PacMan
         @y_vel = 0
 
         @speed = 0.2
-
-        @power = false
         
         @animation_handler = AnimationHandler.new([
             Animation.new(:right, ["4", "0", "5", "0"].map(&:yellow), 2),
             Animation.new(:up,    ["4", "1", "6", "1"].map(&:yellow), 2),
             Animation.new(:left,  ["4", "2", "7", "2"].map(&:yellow), 2),
             Animation.new(:down,  ["4", "3", "8", "3"].map(&:yellow), 2),
-            Animation.new(:death, ["4", "4", "1", "6", "9", "G", ".", ",", ","].map(&:yellow), 8)
+            Animation.new(:death, ["4", "4", "1", "6", "9", "G", ".", ",", ","].map(&:yellow), 5)
         ])
 
         @animation_handler.start(:right, true)
@@ -290,15 +310,26 @@ class Board
         end
         
         if dead
-            str = "GAME  OVER"
+            str = "game  over"
             for i in 0...str.length
                 output_board[20][9 + i] = str[i].red
             end
         end
+
+        str = "Rup   high score"
+        for i in 0...str.length
+            output_board[0][3 + i] = str[i].white
+        end
+
         
-        convertScore
-        for i in 0...$scoreString.to_s.length
-            output_board[1][10 + i] = $scoreString.to_s[i]
+        str = convertScore $score
+        str.to_s.reverse.each_char.with_index do |char, i|
+            output_board[1][6 - i] = char
+        end
+
+        str = convertScore $highscore
+        str.to_s.reverse.each_char.with_index do |char, i|
+            output_board[1][16 - i] = char
         end
         
         
@@ -330,12 +361,9 @@ end
 board = Board.new
 
 def check_dead board
-    if board.pacman.power
-        return false
-    end
 
     for ghost in board.ghosts
-        if ghost.check_collision_pacman(board) == true
+        if ghost.check_collision_pacman(board) && [:chase, :scatter].include?(ghost.mode)
             return true
         end
     end
@@ -356,6 +384,8 @@ key_thread = Thread.new do
     end
 end
 
+# to create the highscore file if it doesn't exist
+$highscore = save_highscore 0
 
 $cursor.invisible {
     loop do
@@ -403,6 +433,8 @@ $cursor.invisible {
         sleep(1 / $frame_rate)
         $frame += 1
     end
+
+    save_highscore $score
     STDIN.getch
 
 }
