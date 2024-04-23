@@ -3,7 +3,7 @@ using Rainbow
 
 class Ghost
 
-    attr_accessor :mode
+    attr_accessor :mode, :animation_handler
     attr_reader :target_x, :target_y
 
     def initialize x, y
@@ -21,10 +21,20 @@ class Ghost
         @frame_offset = rand(4)
 
         @mode = :house
+        @frightened_start = Time.now
 
         @in_house = true
 
         @speed = 0.2
+
+        @animation_handler = AnimationHandler.new([
+            Animation.new(:default, ["J".color(@color)], 1),
+            Animation.new(:frightened, ["K".blue], 1),
+            Animation.new(:frightened_flicker, ["K".blue, "K".white], 10),
+            Animation.new(:eyes, ["L".white], 1)
+        ])
+
+        @animation_handler.start(:default, true)
     end
 
     def get_directions board
@@ -59,10 +69,6 @@ class Ghost
 
     def move board
 
-        if @mode == :frightened && ($frame + @frame_offset) % 3 == 1
-            return
-        end 
-
         if @mode == :house
             return
         end
@@ -78,8 +84,38 @@ class Ghost
             @target_y = 14
         end
 
-        
+        if @mode == :eyes
+            if @x.floor == 13 && @y.floor == 14
+                @mode = :chase
+                @animation_handler.start :default, true
+                @speed = 0.2
+            end
 
+            @target_x = 13
+            @target_y = 14
+        end
+
+        if Time.now - @frightened_start > 5 && @mode == :frightened
+            @animation_handler.start :frightened_flicker, true
+        end
+
+        if Time.now - @frightened_start > 10 && @mode == :frightened
+            @mode = :chase
+            @animation_handler.start :default, true
+
+            @speed = 0.2
+        end
+
+        if check_collision_pacman(board) && @mode == :frightened
+            @mode = :eyes
+            @animation_handler.start :eyes, true
+
+            @speed = 0.5
+
+            $ghost_count += 1
+            $score += 200 * 2 ** $ghost_count
+        end
+        
         # find all possible directions
         possible_directions = get_directions(board)
 
@@ -123,8 +159,25 @@ class Ghost
 
     end
 
-    def to_s
-        "J"
+    def frightened
+        @mode = :frightened
+        @animation_handler.start :frightened, true
+
+        @speed = 0.1
+
+        # frightened mode lasts for 10 seconds, set a timer
+        @frightened_start = Time.now
+    end
+
+    def kill
+        @mode = :eyes
+        @animation_handler.start :eyes, true
+        
+        @speed = 0.5
+    end
+
+    def draw
+        @animation_handler.draw
     end
 
     def x
@@ -159,10 +212,12 @@ end
 class Blinky < Ghost
 
     def initialize x, y
+        @color = :red
         super x, y
 
         @mode = :chase
         @in_house = false
+
     end
 
     def generate_target board
@@ -176,13 +231,15 @@ class Blinky < Ghost
         @target_x = board.pacman.x
         @target_y = board.pacman.y
     end
-
-    def draw
-        "J".color(:red)
-    end
 end
 
 class Pinky < Ghost
+
+    def initialize x, y
+        @color = :magenta
+        super x, y
+
+    end
 
     def generate_target board
         if @mode == :scatter
@@ -199,13 +256,15 @@ class Pinky < Ghost
             @target_x -= 4
         end
     end
-
-    def draw
-        "J".color(:magenta)
-    end
 end
 
 class Inky < Ghost
+
+    def initialize x, y
+        @color = :cyan
+        super x, y
+
+    end
 
     def generate_target board
         if @mode == :scatter
@@ -227,13 +286,15 @@ class Inky < Ghost
             @target_y = 0
         end
     end
-
-    def draw
-        "J".color(:cyan)
-    end
 end
 
 class Clyde < Ghost
+
+    def initialize x, y
+        @color = :yellow
+        super x, y
+
+    end
 
     def generate_target board
         if @mode == :scatter
@@ -249,9 +310,5 @@ class Clyde < Ghost
             @target_x = board.pacman.x
             @target_y = board.pacman.y
         end
-    end
-
-    def draw
-        "J".color(:orange)
     end
 end
