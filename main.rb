@@ -5,6 +5,8 @@ $start_time = Time.now
 $current_time = Time.now - $start_time
 $running = true
 
+$deaths = 0
+
 require 'rainbow/refinement'
 using Rainbow
 
@@ -332,6 +334,9 @@ class Board
             output_board[1][16 - i] = char
         end
         
+        for i in 0...(2 - $deaths)
+            output_board[35][1 + i] = "0".yellow
+        end
         
         if @last_board != nil
             differences = find_differences @last_board, output_board
@@ -386,6 +391,7 @@ end
 
 # to create the highscore file if it doesn't exist
 $highscore = save_highscore 0
+
 def reset_board board
     $start_time = Time.now
     $current_time = Time.now - $start_time
@@ -409,12 +415,11 @@ def reset_board board
 
 end
 
-deaths = 0
 $cursor.invisible {
     loop do
         if check_dead board
-            deaths += 1
-            if deaths == 3
+            $deaths += 1
+            if $deaths == 3
                 break
             end
             reset_board board
