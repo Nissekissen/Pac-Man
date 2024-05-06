@@ -169,7 +169,7 @@ class PacMan
     # Beskrivning:         Kollar vilken key som är nedtryckt och sätter direction och animation beroende på det
     # Argument 1: key      String - vilken knapp som är nedtryckt
     # Argument 2: board    Board - finns med så att man  kan skicka med i alla funktioner som behöver den
-    # Return: Har ingen return då den bara sätter olika värden
+    # Return:              Har ingen return då den bara sätter olika värden
     # Datum:               06/05/2024
     # Namn:                Svante Bengtsson
 
