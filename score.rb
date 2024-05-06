@@ -26,7 +26,20 @@ def eatCheck(x, y, board)
 
     end
 end
+
+# Beskrivning:         Denna funktionen tar in ett tal som är större än 0 och konverterar varje siffra individuellt till motsvarande bokstav i vårt pacman-typsnitt
+# Argument 1: score    Integer - detta är talet som ska omvadlas. det är antingen highscoret eller nuvarande score
+# Return: str          String - en string med bokstäver som är score omvandlat för vårt font
+# Exempel:        
+#   convertScore 1337 => RTTX
+#   convertScore = 123456789 => RSTUVXYZ
+#   convertScore = ball => ""
+# Datum:               06/05/2024
+# Namn:                Svante Bengtsson
 def convertScore score
+    if score.class != Integer
+        return ""
+    end
     str = ""
     for i in 0...score.to_s.length
         case score.to_s[i].to_i
