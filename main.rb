@@ -73,6 +73,19 @@ def find_differences arr1, arr2
 
 end
 
+# Beskrivning:         Denna klass hanterar det mesta angående pac-man
+# Lokal variabel (@x):                  Float - pac mans x position
+# Lokal variabel (@y):                  Float - pac mans y position
+# Lokal variabel (@direction):          Integer - vilken riktning pac man pekar nummer mellan 0 och 3
+# Lokal variabel (@current_key):        Array - nuvarande nedtryckt knapp samt tiden den trycktes ned
+# Lokal variabel (@reset_time):         Integer - hur länge en key räknas som intryckt och pac man fortfarande svänger
+# Lokal variabel (@last_key):           String - håller koll på senaste ned-tryckta knappen
+# Lokal variabel (@x_vel):              Integer - om pac man rör sig upp ner eller inte alls i x led
+# Lokal variabel (@y_vel):              Integer - om pac man rör sig upp ner eller inte alls i y led
+# Lokal variabel (@speed):              Float - pac mans hastighet som bestämmer hur mycket @x ändras med varje gång vi rör på pac-man
+# Lokal variabel (@animation_handler):  AnimationHandler - hanterar alla pac mans animationer och bestämmer vad som skrivs i Board när pac man ska renderas
+# Datum:               06/05/2024
+# Namn:                Svante Bengtsson
 class PacMan
 
     attr_accessor :direction, :score, :x_vel, :y_vel, :current_key, :animation_handler
@@ -81,7 +94,6 @@ class PacMan
         @x = x
         @y = y
         @direction = direction
-        @score = 0
 
         @current_key = [nil, nil] # first is the key, second is the time pressed
         @reset_time = 1
@@ -121,6 +133,12 @@ class PacMan
         return !board.is_wall?(@x.floor + x, @y.floor + y)
     end
 
+    # Beskrivning:         rör pac man beroende på vilken tangent som är nedtryckt. flyttar även pac man till höger sida om han går ut till vänster och vice versa.
+    # Argument 1: board    Board - finns med då många funktioner måste ha med board för att interagera med pac man och spökena
+    # Return:              har ingen return då den enbart ska sätta värden och hantera logik
+    # Datum:               06/05/2024
+    # Namn:                Svante Bengtsson
+
     def move board
 
         if @current_key[0] != nil
@@ -147,6 +165,12 @@ class PacMan
 
         eatCheck(@x, @y, board)
     end
+    # Beskrivning:         Kollar vilken key som är nedtryckt och sätter direction och animation beroende på det
+    # Argument 1: key      String - vilken knapp som är nedtryckt
+    # Argument 2: board    Board - finns med så att man  kan skicka med i alla funktioner som behöver den
+    # Return: Har ingen return då den bara sätter olika värden
+    # Datum:               06/05/2024
+    # Namn:                Svante Bengtsson
 
     def key_press key, board
         case key
@@ -171,19 +195,8 @@ class PacMan
                 @direction = 0
                 @animation_handler.start(:right, true)
             end
-        when "g"
-            # kill ghosts
-            for ghost in board.ghosts
-                if !([:chase, :scatter, :frightened].include?(ghost.mode))
-                    next
-                end
-
-                ghost.kill
-            end
         when "q"
             $running = false
-        when "r"
-            @animation_handler.start(:death, false)
         end
         
     end
@@ -365,6 +378,15 @@ end
 
 board = Board.new
 
+# Beskrivning:              Denna funktion är till för att kolla om pac man befinner sig på samma koordinater som ett spöke
+# Argument 1: board         Board - detta är brädet som fungerar som en spelhanterare den behövs för att kolla kordinaterna för pac-man och spökena
+# Return: true eller false  Boolean - returnar true om pac mans koordinater rundade till närmaste ental är samma som ett spökes koordianter rundade till närmaste ental
+# Exempel:        
+#   spöke 1 koordinater = 1.2, 3.4  pacman koordinater = 0.9, 2.9 => true
+#   spöke 1 koordinater = 1.2, 4  pacman koordinater = 0.9, 2.1 => false              
+# Datum:               06/05/2024
+# Namn:                Svante Bengtsson
+
 def check_dead board
 
     for ghost in board.ghosts
@@ -392,6 +414,11 @@ end
 # to create the highscore file if it doesn't exist
 $highscore = save_highscore 0
 
+# Beskrivning:         Denna funktion resettar pac man och spökena när pac man dör eller vinner. den resettar inte pellets.
+# Argument 1: board    Board - detta är brädet som fungerar som en spelhanterare den behövs för att ändra värden hos pac-man och spökena
+# Return: har ingen return då den bara ska sätta en massa olika värden  
+# Datum:  06/05/2024
+# Namn:   Svante Bengtsson
 def reset_board board
     $start_time = Time.now
     $current_time = Time.now - $start_time
