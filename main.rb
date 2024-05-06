@@ -245,6 +245,7 @@ class Cell
         case @value
         when "A", "B", "C", "D", "E", "F"
             color = $win && ($frame / 10) % 2 == 0 ? :white : :blue
+            color = $win && ($frame / 10) % 2 == 0 ? :white : :blue
         when "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"
             color = :yellow
         else
@@ -256,6 +257,7 @@ end
 
 class Board
 
+    attr_accessor :board, :pacman, :ghosts, :pellets
     attr_accessor :board, :pacman, :ghosts, :pellets
 
     def initialize
@@ -290,6 +292,18 @@ class Board
 
     def eat
         @pellets -= 1
+        @pellets = 5
+        # @board.each do |row|
+        #     row.each do |cell|
+        #         if cell.value == "G" || cell.value == "H"
+        #             @pellets += 1
+        #         end
+        #     end
+        # end
+    end
+
+    def eat
+        @pellets -= 1
     end
 
     def [](x, y)
@@ -310,6 +324,7 @@ class Board
     end
 
     def draw_board mode
+    def draw_board mode
 
         output_board = Array.new(36) { Array.new(28) { " " } }
 
@@ -324,6 +339,10 @@ class Board
             output_board[@pacman.y][@pacman.x] = @pacman.draw
         end
         if mode == :playing 
+        if mode != :win
+            output_board[@pacman.y][@pacman.x] = @pacman.draw
+        end
+        if mode == :playing 
             for ghost in @ghosts
 
                 output_board[ghost.y][ghost.x] = ghost.draw
@@ -331,6 +350,7 @@ class Board
             end
         end
         
+        if mode == :dead
         if mode == :dead
             str = "game  over"
             for i in 0...str.length
@@ -379,6 +399,8 @@ class Board
         end
 
         @last_board = output_board.clone
+
+        print $cursor.move_to(0, 36) + @pellets.to_s
 
         print $cursor.move_to(0, 36) + @pellets.to_s
 
@@ -463,7 +485,30 @@ $cursor.invisible {
             if $current_time.to_i > 7 && board.ghosts[3].mode == :house
                 board.ghosts[3].mode = get_mode
             end
+        if !$win
+            board.draw_board :playing
+            board.pacman.move board
 
+            if $current_time.to_i > 3 && board.ghosts[1].mode == :house
+                board.ghosts[1].mode = get_mode
+            end
+    
+            if $current_time.to_i > 5 && board.ghosts[2].mode == :house
+                board.ghosts[2].mode = get_mode
+            end
+    
+            if $current_time.to_i > 7 && board.ghosts[3].mode == :house
+                board.ghosts[3].mode = get_mode
+            end
+
+            board.ghosts.each_with_index do |ghost, i|
+                ghost.move board
+                if ghost.mode != :house && ghost.mode != :frightened && ghost.mode != :eyes
+                    ghost.mode = get_mode
+                end
+            end
+        else
+            board.draw_board :win
             board.ghosts.each_with_index do |ghost, i|
                 ghost.move board
                 if ghost.mode != :house && ghost.mode != :frightened && ghost.mode != :eyes
@@ -478,14 +523,20 @@ $cursor.invisible {
             break
         end
 
+        if !$running
+            break
+        end
+
         sleep(1 / $frame_rate)
 
         $frame += 1
         $current_time = Time.now - $start_time
     end
     board.draw_board :dead
+    board.draw_board :dead
     board.pacman.animation_handler.start :death, false
     for i in 0...72
+        board.draw_board :dead
         board.draw_board :dead
         sleep(1 / $frame_rate)
         $frame += 1
