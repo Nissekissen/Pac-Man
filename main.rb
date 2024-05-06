@@ -386,11 +386,39 @@ end
 
 # to create the highscore file if it doesn't exist
 $highscore = save_highscore 0
+def reset_board board
+    $start_time = Time.now
+    $current_time = Time.now - $start_time
+    board.pacman.x = 14
+    board.pacman.y = 26
+    board.ghosts[0].x = 13
+    board.ghosts[0].y = 14
+    board.ghosts[0].mode = :scatter
+    board.ghosts[1].x = 13
+    board.ghosts[1].y = 16
+    board.ghosts[1].mode = :house
+    board.ghosts[1].in_house = true
+    board.ghosts[2].x = 12
+    board.ghosts[2].y = 16
+    board.ghosts[2].mode = :house
+    board.ghosts[2].in_house = true
+    board.ghosts[3].x = 14
+    board.ghosts[3].y = 16
+    board.ghosts[3].mode = :house
+    board.ghosts[3].in_house = true
 
+end
+
+deaths = 0
 $cursor.invisible {
     loop do
         if check_dead board
-            break
+            deaths += 1
+            if deaths == 3
+                break
+            end
+            reset_board board
+
         end
 
         board.draw_board false

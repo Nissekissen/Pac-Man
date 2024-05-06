@@ -3,7 +3,7 @@ using Rainbow
 
 class Ghost
 
-    attr_accessor :mode, :animation_handler
+    attr_accessor :mode, :animation_handler, :in_house
     attr_reader :target_x, :target_y
 
     def initialize x, y
