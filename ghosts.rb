@@ -1,6 +1,22 @@
 require 'rainbow/refinement'
 using Rainbow
 
+# Beskrivning:         Klassen för spökena i spelet. Hanterar deras position, rörelse och beteende.
+# Lokal variabel (@x)                 Float - x-koordinat
+# Lokal variabel (@y)                 Float - y-koordinat
+# Lokal variabel (@x_vel)             Integer - x-koordinatens hastighet
+# Lokal variabel (@y_vel)             Integer - y-koordinatens hastighet
+# Lokal variabel (@last_turn)         Array - koordinaten för senaste svängen. För att förhindra spöket att svänga två gånger på samma ruta.  
+# Lokal variabel (@target_x)          Integer - x-koordinat för spökets mål
+# Lokal variabel (@target_y)          Integer - y-koordinat för spökets mål
+# Lokal variabel (@frame_offset)      Integer - slumpmässig offset för att spöket ska röra sig olika
+# Lokal variabel (@mode)              Symbol - beteende för spöket
+# Lokal variabel (@frightened_start)  Time - tiden då spöket blev rädd
+# Lokal variabel (@in_house)          Boolean - om spöket är i huset
+# Lokal variabel (@speed)             Float - hastigheten för spöket
+# Lokal variabel (@animation_handler) AnimationHandler - hanterar spökets animation      
+# Datum:               2024-05-06
+# Namn:                Nils Lindblad
 class Ghost
 
     attr_accessor :mode, :animation_handler, :in_house
@@ -37,6 +53,11 @@ class Ghost
         @animation_handler.start(:default, true)
     end
 
+    # Beskrivning:         Metoden räknar ut alla möjliga riktningar som spöket kan röra sig i. Den används för AI:n för att räkna ut vilken riktning spöket ska ta.
+    # Argument 1:          Board - brädet som spöket rör sig på
+    # Return:              Array - tvådimensionell array med riktningar som spöket kan röra sig i           
+    # Datum:               2024-05-06
+    # Namn:                Nils Lindblad
     def get_directions board
         output = []
 
@@ -54,9 +75,6 @@ class Ghost
                 next
             end
 
-            
-
-
             output.push([x_dir, y_dir])
         end
 
@@ -67,6 +85,11 @@ class Ghost
         return Math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
     end
 
+    # Beskrivning:         Metoden rör spöket på brädet. Den hanterar spökets beteende och rörelse.
+    # Argument 1:          Board - brädet som spöket rör sig på
+    # Return:              nil     
+    # Datum:               2024-05-06
+    # Namn:                Nils Lindblad
     def move board
 
         if @mode == :house
@@ -209,6 +232,11 @@ class Ghost
     end
 end
 
+# Beskrivning:            Klassen för det röda spöket. Ärver från Ghost.
+# Lokal variabel (@color) Symbol - färgen på spöket
+# Datum:                  2024-05-06
+# Namn:                   Nils Lindblad
+
 class Blinky < Ghost
 
     def initialize x, y
@@ -220,6 +248,11 @@ class Blinky < Ghost
 
     end
 
+    # Beskrivning:         Generar målet för spöket. Om spöket är i scatter mode så sätts målet till en hårdkodad position. Annars sätts målet till pacman.
+    # Argument 1:          Board - brädet som spöket rör sig på
+    # Return:              nil
+    # Datum:               2024-05-06
+    # Namn:                Nils Lindblad
     def generate_target board
 
         if @mode == :scatter
@@ -233,6 +266,10 @@ class Blinky < Ghost
     end
 end
 
+# Beskrivning:            Klassen för det rosa spöket. Ärver från Ghost.
+# Lokal variabel (@color) Symbol - färgen på spöket
+# Datum:                  2024-05-06
+# Namn:                   Nils Lindblad
 class Pinky < Ghost
 
     def initialize x, y
@@ -241,6 +278,11 @@ class Pinky < Ghost
 
     end
 
+    # Beskrivning:         Generar målet för spöket. Om spöket är i scatter mode så sätts målet till en hårdkodad position. Annars sätts målet till 4 steg framför pacman. Om pacman rör sig uppåt så sätts målet 4 steg till vänster, det är från en bugg i originalet.
+    # Argument 1:          Board - brädet som spöket rör sig på
+    # Return:              nil
+    # Datum:               2024-05-06
+    # Namn:                Nils Lindblad
     def generate_target board
         if @mode == :scatter
             @target_x = 2
@@ -258,6 +300,11 @@ class Pinky < Ghost
     end
 end
 
+
+# Beskrivning:            Klassen för det blåa spöket. Ärver från Ghost.
+# Lokal variabel (@color) Symbol - färgen på spöket
+# Datum:                  2024-05-06
+# Namn:                   Nils Lindblad
 class Inky < Ghost
 
     def initialize x, y
@@ -266,6 +313,11 @@ class Inky < Ghost
 
     end
 
+    # Beskrivning:         Generar målet för spöket. Om spöket är i scatter mode så sätts målet till en hårdkodad position. Annars sätts målet till en position som är 2 steg framför pacman och 2 steg framför blinky.
+    # Argument 1:          Board - brädet som spöket rör sig på
+    # Return:              nil
+    # Datum:               2024-05-06
+    # Namn:                Nils Lindblad
     def generate_target board
         if @mode == :scatter
             @target_x = 27
@@ -288,6 +340,10 @@ class Inky < Ghost
     end
 end
 
+# Beskrivning:            Klassen för det gula spöket. Ärver från Ghost.
+# Lokal variabel (@color) Symbol - färgen på spöket
+# Datum:                  2024-05-06
+# Namn:                   Nils Lindblad
 class Clyde < Ghost
 
     def initialize x, y
@@ -296,6 +352,12 @@ class Clyde < Ghost
 
     end
 
+
+    # Beskrivning:         Generar målet för spöket. Om spöket är i scatter mode så sätts målet till en hårdkodad position. Annars sätts målet till pacman om avståndet är större än 8, annars sätts målet till en hårdkodad position.
+    # Argument 1:          Board - brädet som spöket rör sig på
+    # Return:              nil
+    # Datum:               2024-05-06
+    # Namn:                Nils Lindblad
     def generate_target board
         if @mode == :scatter
             @target_x = 0

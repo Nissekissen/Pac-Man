@@ -45,6 +45,16 @@ def save_highscore score
     return [highscore, score].max
 end
 
+
+# Beskrivning:         Metoden returnerar vilket läge spökena ska vara i. Läget bestäms av tiden som gått sedan spelet startade och en array som innehåller tider för när spökena ska byta läge.
+# Return:              Symbol - vilket läge som spökena ska vara i, :scatter eller :chase. De andra lägerna bestäms i andra delar av programmet.
+# Exempel:         
+#   $current_time = 10 => :chase
+#   $current_time = 20 => :chase
+#   $current_time = 30 => :scatter
+#   $current_time = 40 => :chase
+# Datum:               2024-05-06
+# Namn:                Nils Lindblad
 def get_mode
     total = 0
     $mode_timer.each_with_index do |time, i|
@@ -57,7 +67,18 @@ def get_mode
     return :chase
 end
 
-
+# Beskrivning:         Hittar skillander mellan två tvådimensionella arrayer och returnerar en array med koordinater för de celler som skiljer sig. Används av board för att underlätta uppritning av skärmen.
+# Argument 1:          Array - en tvådimensionell array
+# Argument 2:          Array - en tvådimensionell array
+#   etc
+# Return:              Array - en array med koordinater för de celler som skiljer sig mellan de två arrayerna. Koordinaterna representeras av en array med två element, x och y.
+# Exempel:         
+#  find_differences([["a", "b"], ["c", "d"]], [["a", "b"], ["c", "e"]]) => [[1, 1]]
+#  find_differences([["a", "b"], ["c", "d"]], [["a", "b"], ["c", "d"]]) => []
+#  find_differences([["a", "b"], ["c", "d"]], [["a", "b"], ["c", "d"], ["e", "f"]]) => [[0, 2], [1, 2]]
+#  find_differences([["a", "b"], ["c", "d"], ["e", "f"]], [["a", "b"], ["c", "d"]]) => [[0, 2], [1, 2]]               
+# Datum:               2024-05-06
+# Namn:                Nils Lindblad
 def find_differences arr1, arr2
 
     differences = []
@@ -256,6 +277,13 @@ class Cell
     end
 end
 
+# Beskrivning:         Klassen representerar spelplanen. Den innehåller en tvådimensionell array med celler, en PacMan och en array med spöken. Klassen innehåller metoder för att ladda in spelplanen från en fil, rita ut spelplanen, räkna ut antalet pellets och kolla om en viss cell är en vägg. Den hanterar med andra ord allt som har med spelplanen att göra.
+# Lokal variabel (@board)      Array - en tvådimensionell array med celler         
+# Lokal variabel (@last_board) Array - en tvådimensionell array med celler, som används för att jämföra med @board och hitta skillnader         
+# Lokal variabel (@pacman)     PacMan - Se klassen PacMan
+# Lokal variabel (@ghosts)     Array[ghosts] - Alla spöken på spelplanen, se klassen Ghost           
+# Datum:               2024-05-06
+# Namn:                Nils Lindblad
 class Board
 
     attr_accessor :board, :pacman, :ghosts, :pellets
@@ -275,6 +303,11 @@ class Board
         calculate_pellets
     end
 
+    # Beskrivning:         Laddar in spelplanen från en fil. Filen ska vara en textfil där varje rad representerar en rad på spelplanen. Varje rad ska bestå av en kommaseparerad lista med värden som representerar cellerna på raden. Värdena kan bland annat vara "G" för en pellet, "H" för en power pellet och " " för en tom cell. Alla värden separeras av ett kommatecken.
+    # Argument 1:          String - sökvägen till filen som ska läsas in
+    # Return:              nil - metoden returnerar inget, utan sparar värdena i @board.         
+    # Datum:               2024-05-06
+    # Namn:                Nils Lindblad
     def load_from_file path
         File.open(path, "r") do |file|
             # read the file line by line and store the values in the board
@@ -288,6 +321,12 @@ class Board
         end
     end
 
+    # Beskrivning:         Räknar ut antalet pellets på spelplanen. Metoden går igenom varje cell i @board och räknar varje cell som innehåller en pellet eller en power pellet. Den körs i början av spelet, när man dör eller klarar en nivå.
+    # Return:              nil - den sparar antalet pellets i en instansvariabel, @pellets.
+    # Exempel:         
+    #  Går inte riktigt att ha exempel, men den räknar antalet pellets på spelplanen och sparar det i @pellets.
+    # Datum:               2024-05-06
+    # Namn:                Nils Lindblad
     def calculate_pellets
         @pellets = 0
         @board.each do |row|
@@ -321,6 +360,12 @@ class Board
         end
     end
 
+    # Beskrivning:         Ritar ut spelplanen på skärmen. Den läser in alla celler i @board och sparar det i en lokal variabel "output_board". Sedan jämför den "output_board" med en tidigare version av spelplanen, "last_board", och sparar skillnaderna i en array "differences". Därefter skriver den ut skillnaderna på skärmen. Om "last_board" är nil, skrivs hela spelplanen ut på skärmen. Den tar in ett läge, "mode", som avgör hur spelplanen ska ritas ut. Om "mode" är :playing ritas PacMan och spökena ut, om det är :win ritas bara spökena ut och om det är :dead ritas en text ut som säger "game over".
+    # Argument 1:          Symbol - läge som avgör hur spelplanen ska ritas ut. Antingen :playing, :win eller :dead
+    #   etc
+    # Return:              nil - metoden returnerar inget, utan skriver ut spelplanen på skärmen.           
+    # Datum:               2024-05-06
+    # Namn:                Nils Lindblad
     def draw_board mode
 
         output_board = Array.new(36) { Array.new(28) { " " } }
@@ -512,6 +557,13 @@ $cursor.invisible {
         $current_time = Time.now - $start_time
     end
     
+    board.draw_board :dead
+    board.pacman.animation_handler.start :death, false
+    for i in 0...72
+        board.draw_board :dead
+        sleep(1 / $frame_rate)
+        $frame += 1
+    end
 
     save_highscore $score
     STDIN.getch
