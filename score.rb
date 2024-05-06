@@ -8,10 +8,11 @@ def eatCheck(x, y, board)
     when "G"
         $score += 10
         board[x, y].value = " "
+        board.eat
     when "H"
         $score += 50
         board[x, y].value = " "
-
+        board.eat
         $ghost_count = 0
 
         # make ghosts frightened
