@@ -190,6 +190,7 @@ class PacMan
         if board.pellets <= 0
             # win
             $win = true
+            $frame = 0
         end
         
     end
@@ -265,7 +266,17 @@ class Board
         @board = Array.new(36) { Array.new(29) { Cell.new 0, 0, nil } }
         @last_board = nil
 
-        File.open("map.txt", "r") do |file|
+        load_from_file "map.txt"
+
+        @pacman = PacMan.new 14,26, 0
+
+        @ghosts = [Blinky.new(13, 14), Pinky.new(13, 16), Inky.new(14, 16), Clyde.new(12, 16)]
+        
+        calculate_pellets
+    end
+
+    def load_from_file path
+        File.open(path, "r") do |file|
             # read the file line by line and store the values in the board
             file.each_with_index do |line, y|
                 line.chomp.split(",").each_with_index do |value, x|
@@ -275,31 +286,18 @@ class Board
                 end
             end
         end
-
-        @pacman = PacMan.new 14,26, 0
-
-        @ghosts = [Blinky.new(13, 14), Pinky.new(13, 16), Inky.new(14, 16), Clyde.new(12, 16)]
-        
-        @pellets = 5
-        # @board.each do |row|
-        #     row.each do |cell|
-        #         if cell.value == "G" || cell.value == "H"
-        #             @pellets += 1
-        #         end
-        #     end
-        # end
     end
 
-    def eat
-        @pellets -= 1
-        @pellets = 5
-        # @board.each do |row|
-        #     row.each do |cell|
-        #         if cell.value == "G" || cell.value == "H"
-        #             @pellets += 1
-        #         end
-        #     end
-        # end
+    def calculate_pellets
+        @pellets = 0
+        @board.each do |row|
+            row.each do |cell|
+                if cell.value == "G" || cell.value == "H"
+                    @pellets += 1
+                end
+            end
+        end
+        # @pellets = 5
     end
 
     def eat
@@ -324,7 +322,6 @@ class Board
     end
 
     def draw_board mode
-    def draw_board mode
 
         output_board = Array.new(36) { Array.new(28) { " " } }
 
@@ -339,10 +336,6 @@ class Board
             output_board[@pacman.y][@pacman.x] = @pacman.draw
         end
         if mode == :playing 
-        if mode != :win
-            output_board[@pacman.y][@pacman.x] = @pacman.draw
-        end
-        if mode == :playing 
             for ghost in @ghosts
 
                 output_board[ghost.y][ghost.x] = ghost.draw
@@ -350,8 +343,7 @@ class Board
             end
         end
         
-        if mode == :dead
-        if mode == :dead
+        if mode == :dead && $deaths == 3
             str = "game  over"
             for i in 0...str.length
                 output_board[20][9 + i] = str[i].red
@@ -399,10 +391,6 @@ class Board
         end
 
         @last_board = output_board.clone
-
-        print $cursor.move_to(0, 36) + @pellets.to_s
-
-        print $cursor.move_to(0, 36) + @pellets.to_s
 
     end
 end
@@ -457,7 +445,13 @@ def reset_board board
     board.ghosts[3].mode = :house
     board.ghosts[3].in_house = true
 
+    if $win
+        board.load_from_file "map.txt"
+        board.calculate_pellets
+    end
+
 end
+
 
 $cursor.invisible {
     loop do
@@ -466,25 +460,17 @@ $cursor.invisible {
             if $deaths == 3
                 break
             end
+            board.draw_board :dead
+            board.pacman.animation_handler.start :death, false
+            for i in 0...72
+                board.draw_board :dead
+                sleep(1 / $frame_rate)
+                $frame += 1
+            end
             reset_board board
-
+            next
         end
 
-        if !$win
-            board.draw_board :playing
-            board.pacman.move board
-
-            if $current_time.to_i > 3 && board.ghosts[1].mode == :house
-                board.ghosts[1].mode = get_mode
-            end
-    
-            if $current_time.to_i > 5 && board.ghosts[2].mode == :house
-                board.ghosts[2].mode = get_mode
-            end
-    
-            if $current_time.to_i > 7 && board.ghosts[3].mode == :house
-                board.ghosts[3].mode = get_mode
-            end
         if !$win
             board.draw_board :playing
             board.pacman.move board
@@ -509,18 +495,11 @@ $cursor.invisible {
             end
         else
             board.draw_board :win
-            board.ghosts.each_with_index do |ghost, i|
-                ghost.move board
-                if ghost.mode != :house && ghost.mode != :frightened && ghost.mode != :eyes
-                    ghost.mode = get_mode
-                end
-            end
-        else
-            board.draw_board :win
-        end
 
-        if !$running
-            break
+            if $frame > 100
+                reset_board board
+                $win = false
+            end
         end
 
         if !$running
@@ -532,15 +511,7 @@ $cursor.invisible {
         $frame += 1
         $current_time = Time.now - $start_time
     end
-    board.draw_board :dead
-    board.draw_board :dead
-    board.pacman.animation_handler.start :death, false
-    for i in 0...72
-        board.draw_board :dead
-        board.draw_board :dead
-        sleep(1 / $frame_rate)
-        $frame += 1
-    end
+    
 
     save_highscore $score
     STDIN.getch
